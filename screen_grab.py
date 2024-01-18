@@ -3,6 +3,7 @@ import numpy as np
 import pygetwindow
 import mss
 import traceback
+import os
 from PIL import Image
 
 def get_screenshot():
@@ -21,10 +22,8 @@ def get_screenshot():
             np_data = cv.cvtColor(np_data, cv.COLOR_RGB2BGR)
             cv.imshow("window", np_data)
             cv.waitKey(0)
+            os.remove(np_data)
     except IndexError:
         print("Window not found")
     except Exception as e:
         traceback.print_exc()
-
-while True:
-    get_screenshot()
