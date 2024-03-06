@@ -1,4 +1,5 @@
 import numpy
+import supervision as sv
 import torch
 from ultralytics import YOLO
 import cv2
@@ -18,6 +19,7 @@ class Image:
         self.path = os.path.join(directory, self.name)
         self.as_array = cv2.imread(self.path, cv2.IMREAD_UNCHANGED)
 
+    @staticmethod
     def random_images():
         images = []
         image_files = os.listdir(directory)
@@ -28,6 +30,7 @@ class Image:
         return images
 
 
+    @staticmethod
     def get_detection(image):
         coi = [0, 1, 2, 3, 5, 6, 7, 8, 9, 11]
         result = model.predict(image, classes = coi, conf = 0.45)
@@ -40,19 +43,15 @@ class Midas:
         self.midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         self.image = None
-    def load_image(self, image):
-        img = cv2.imread(image)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        return img
-    def get_depth_map(self, image):
-        self.image = image.to(self.device)
+
+    def get_depth_map(self, image_path):
         self.midas.to(self.device)
         self.midas.eval()
         if self.model_type == "DPT_Large" or self.model_type == "DPT_Hybrid":
             transform = self.midas_transforms.dpt_transform
         else:
             transform = self.midas_transforms.small_transform
-        input_batch = transform(self.load_image(image)).to(self.device)
+        input_batch = transform(image_path).to(self.device)
         with torch.no_grad():
             prediction = self.midas(input_batch)
 
@@ -69,17 +68,17 @@ class Midas:
 
 
 img = Image.random_images()[0]
-'''box_annotator = sv.BoxAnnotator(thickness= 4, text_thickness= 4, text_scale= 2 )
+box_annotator = sv.BoxAnnotator(thickness= 4, text_thickness= 4, text_scale= 2 )
 for r in Image.get_detection(img):
     detections = sv.Detections(
         xyxy = r.boxes.xyxy.cpu().numpy(),
         confidence = r.boxes.conf.cpu().numpy(),
         class_id = r.boxes.cls.cpu().numpy().astype(int)
     )
-frame = box_annotator.annotate(img, detections = detections)
-sv.plot_image(frame)'''
+    frame = box_annotator.annotate(img, detections = detections)
+    sv.plot_image(frame)
 
 midas = Midas()
-plt.imshow(midas.get_depth_map())
+plt.imshow(midas.get_depth_map(img))
 plt.show()
 #testing changes
