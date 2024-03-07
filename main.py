@@ -1,6 +1,5 @@
 import numpy
 import supervision as sv
-from supervision import ColorPalette
 import torch
 from ultralytics import YOLO
 import cv2
@@ -24,7 +23,7 @@ class Image:
     def random_images():
         images = []
         image_files = os.listdir(directory)
-        random_image_file = random.sample(image_files, 20)
+        random_image_file = random.sample(image_files, 1)
         for image in random_image_file:
             tmp = cv2.imread(os.path.join(directory, image))
             images.append(cv2.cvtColor(tmp, cv2.COLOR_BGR2RGB))
