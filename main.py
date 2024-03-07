@@ -1,5 +1,6 @@
 import numpy
 import supervision as sv
+from supervision import ColorPalette
 import torch
 from ultralytics import YOLO
 import cv2
@@ -66,19 +67,18 @@ class Midas:
         return output
 
 
+while True:
+    img = Image.random_images()[0]
+    midas = Midas()
+    box_annotator = sv.BoxAnnotator(thickness= 4, text_thickness= 4, text_scale= 2)
+    for r in Image.get_detection(img):
+        detections = sv.Detections(
+            xyxy = r.boxes.xyxy.cpu().numpy(),
+            confidence = r.boxes.conf.cpu().numpy(),
+            class_id = r.boxes.cls.cpu().numpy().astype(int)
+        )
+        frame = box_annotator.annotate(midas.get_depth_map(img), detections = detections)
+        sv.plot_image(frame)
 
-img = Image.random_images()[0]
-box_annotator = sv.BoxAnnotator(thickness= 4, text_thickness= 4, text_scale= 2 )
-for r in Image.get_detection(img):
-    detections = sv.Detections(
-        xyxy = r.boxes.xyxy.cpu().numpy(),
-        confidence = r.boxes.conf.cpu().numpy(),
-        class_id = r.boxes.cls.cpu().numpy().astype(int)
-    )
-    frame = box_annotator.annotate(img, detections = detections)
-    sv.plot_image(frame)
 
-midas = Midas()
-plt.imshow(midas.get_depth_map(img))
-plt.show()
 #testing changes
