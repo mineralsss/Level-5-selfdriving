@@ -1,11 +1,10 @@
-import numpy
+import numpy as np
 import supervision as sv
 import torch
 from ultralytics import YOLO
 import cv2
 import os
 import random
-import matplotlib.pyplot as plt
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 #global variable
@@ -65,8 +64,8 @@ class Midas:
         output = prediction.cpu().numpy()
         return output
 
-
-while True:
+img = Image.random_images()[0]
+'''while True:
     img = Image.random_images()[0]
     midas = Midas()
     box_annotator = sv.BoxAnnotator(thickness= 4, text_thickness= 4, text_scale= 2)
@@ -78,6 +77,11 @@ while True:
         )
         frame = box_annotator.annotate(midas.get_depth_map(img), detections = detections)
         sv.plot_image(frame)
-
+'''
 
 #testing changes
+blured_img = img[177:466+177, 477:1276+477].copy()
+blured_img = cv2.GaussianBlur(blured_img,(5,5),  0)
+edge = cv2.Canny(blured_img, 100, 120)
+sv.plot_image(img)
+sv.plot_image(edge)
